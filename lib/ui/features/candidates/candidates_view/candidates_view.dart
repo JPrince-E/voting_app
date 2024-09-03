@@ -106,7 +106,7 @@ class CandidatesView extends StatelessWidget {
                     context.pushReplacement('/homeScreen');
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.transparent,
+                    backgroundColor: Colors.transparent,
                     padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),

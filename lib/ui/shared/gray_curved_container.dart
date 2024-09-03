@@ -1,8 +1,8 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:VoteMe/utils/app_constants/app_colors.dart';
+import 'package:VoteMe/utils/screen_util/screen_util.dart';
 import 'package:flutter/material.dart';
-import 'package:VoteMe/ui/features/utils/app_constants/app_colors.dart';
-import 'package:VoteMe/ui/features/utils/screen_util/screen_util.dart';
 
 class CustomCurvedContainer extends StatelessWidget {
   final Color? fillColor;

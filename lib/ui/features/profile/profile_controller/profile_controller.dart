@@ -14,6 +14,8 @@ class ProfileController extends GetxController {
   var status = ''.obs;
   UserModel? userModel;
   final ImagePicker _picker = ImagePicker();
+  var isLoading = false.obs;
+  var errorMessage = ''.obs;
 
   @override
   void onInit() {
@@ -23,17 +25,28 @@ class ProfileController extends GetxController {
   }
 
   Future<void> fetchUserData() async {
-    username.value = await getSharedPrefsSavedString('myUsername') ?? '';
-    if (username.value.isNotEmpty) {
-      final userRef = FirebaseDatabase.instance.ref().child('users/${encodeUsername(username.value)}');
-      DatabaseEvent event = await userRef.once();
-      DataSnapshot snapshot = event.snapshot;
+    try {
+      isLoading.value = true;
+      username.value = await getSharedPrefsSavedString('myUsername') ?? '';
+      if (username.value.isNotEmpty) {
+        final userRef = FirebaseDatabase.instance.ref().child('users/${encodeUsername(username.value)}');
+        DatabaseEvent event = await userRef.once();
+        DataSnapshot snapshot = event.snapshot;
 
-      if (snapshot.exists) {
-        userModel = UserModel.fromJson(Map<String, dynamic>.from(snapshot.value as Map));
-        profileImageUrl.value = userModel?.imageUrl ?? '';
-        status.value = userModel?.status ?? '...';
+        if (snapshot.exists) {
+          userModel = UserModel.fromJson(Map<String, dynamic>.from(snapshot.value as Map));
+          profileImageUrl.value = userModel?.imageUrl ?? '';
+          status.value = userModel?.status ?? '...';
+        } else {
+          errorMessage.value = 'User not found';
+        }
+      } else {
+        errorMessage.value = 'No username found';
       }
+    } catch (e) {
+      errorMessage.value = 'Failed to fetch user data: $e';
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -68,23 +81,31 @@ class ProfileController extends GetxController {
     );
   }
 
-
   Future<void> uploadProfileImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(source: source);
-    if (pickedFile != null) {
-      File file = File(pickedFile.path);
-      String fileName = '${username.value}_${DateTime.now().millisecondsSinceEpoch}';
-      Reference storageRef = FirebaseStorage.instance.ref().child('profile_images/$fileName');
-      UploadTask uploadTask = storageRef.putFile(file);
+    try {
+      final pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        File file = File(pickedFile.path);
+        String fileName = '${username.value}_${DateTime.now().millisecondsSinceEpoch}';
+        Reference storageRef = FirebaseStorage.instance.ref().child('profile_images/$fileName');
+        UploadTask uploadTask = storageRef.putFile(file);
 
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          // Optionally, you can show upload progress here
+          print('Upload progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%');
+        });
 
-      // Save the URL to the database
-      final userRef = FirebaseDatabase.instance.ref().child('users/${encodeUsername(username.value)}');
-      await userRef.update({'imageUrl': downloadUrl});
+        TaskSnapshot snapshot = await uploadTask;
+        String downloadUrl = await snapshot.ref.getDownloadURL();
 
-      profileImageUrl.value = downloadUrl;
+        // Save the URL to the database
+        final userRef = FirebaseDatabase.instance.ref().child('users/${encodeUsername(username.value)}');
+        await userRef.update({'imageUrl': downloadUrl});
+
+        profileImageUrl.value = downloadUrl;
+      }
+    } catch (e) {
+      errorMessage.value = 'Failed to upload image: $e';
     }
   }
 

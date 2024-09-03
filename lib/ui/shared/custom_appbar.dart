@@ -7,6 +7,7 @@ class CustomAppbar extends StatelessWidget {
   final String? title;
   final Color? appbarColor, titleColor;
   final Widget? actionWidget;
+  final Widget? leading; // Add this parameter
   final bool showBackButton;
 
   const CustomAppbar({
@@ -15,6 +16,7 @@ class CustomAppbar extends StatelessWidget {
     this.appbarColor,
     this.titleColor,
     this.actionWidget,
+    this.leading,
     this.showBackButton = false,
   });
 
@@ -37,15 +39,7 @@ class CustomAppbar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (showBackButton)
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: titleColor ?? AppColors.plainWhite),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                )
-              else
-                const SizedBox(width: 60),
+              leading ?? const SizedBox(width: 60), // Use leading parameter
               Text(
                 title ?? "VOTING APP",
                 style: AppStyles.regularStringStyle(

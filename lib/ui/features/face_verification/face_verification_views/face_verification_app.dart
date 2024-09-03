@@ -179,8 +179,7 @@ class FaceVerificationScreenState extends State<FaceVerificationScreen> {
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Capture Image'),
                   style: ElevatedButton.styleFrom(
-                    primary: AppColors.kPrimaryColor,
-                    onPrimary: Colors.white,
+                    foregroundColor: Colors.white, backgroundColor: AppColors.kPrimaryColor,
                     textStyle: const TextStyle(fontSize: 16),
                     padding: const EdgeInsets.symmetric(
                       vertical: 12,
@@ -197,8 +196,7 @@ class FaceVerificationScreenState extends State<FaceVerificationScreen> {
                   icon: const Icon(Icons.verified_user),
                   label: const Text('Verify Face'),
                   style: ElevatedButton.styleFrom(
-                    primary: AppColors.kPrimaryColor,
-                    onPrimary: Colors.white,
+                    foregroundColor: Colors.white, backgroundColor: AppColors.kPrimaryColor,
                     textStyle: const TextStyle(fontSize: 16),
                     padding: const EdgeInsets.symmetric(
                       vertical: 12,
